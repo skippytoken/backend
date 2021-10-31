@@ -1,0 +1,61 @@
+const express = require('express');
+const app = express();
+const mongoose = require('mongoose');
+const PORT = process.env.PORT
+const MONGO_URI = process.env.MONGO_URI
+const bodyParser = require('body-parser');
+const cors = require('cors');
+require('dotenv').config();
+app.use(cors());
+app.use(bodyParser.json({ limit: '15mb' }));
+//Import Routes
+const userRoute = require('./routes/users');
+const categoryRoute = require('./routes/categories');
+const subcategoryRoute = require('./routes/subcategories');
+const subcatRoute = require('./routes/subcategories');
+const productRoute = require('./routes/products');
+const connectToDB = require('./config/dbConfig')
+
+
+
+
+
+// Connect To DB
+mongoose.connect("mongodb+srv://kamal99:kamal99@skippyecommerce.keybb.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
+  , {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useCreateIndex: true
+  })
+  .then(res => {
+    console.log("Mongo Db is Connected")
+  })
+  .catch(err => {
+    console.log(err)
+  })
+//     process.env.DB_CONNECTION,
+//     { useUnifiedTopology: true, useNewUrlParser: true }, 
+//     () => console.log('Connected to DB!'))
+
+// app.listen(port, () => console.log(`Server listening on the port::${port}`));
+
+// connectToDB().then(_ => {
+//   app.listen(PORT, _ => {
+//     console.log(`Server started on port ${PORT}`)
+//   })
+// })
+
+//routes redirect
+app.use('/user', userRoute)
+app.use('/category', categoryRoute)
+app.use('/subcategory', subcategoryRoute)
+app.use('/product', productRoute)
+//Routes
+app.get('/', (req, res) => {
+  res.send('Backend for Ecommerce')
+})
+
+
+app.listen(4000, () => {
+  console.log(`Server is running on 4000`)
+})
