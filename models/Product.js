@@ -50,25 +50,9 @@ const ProductSchema = mongoose.Schema({
         type: String,
         required: true
     },
-    prodImg1: {
-        type: String,
-        required: true
-    },
-    prodImg2: {
-        type: String,
-        required: false
-    },
-    prodImg3: {
-        type: String,
-        required: false
-    },
-    prodImg4: {
-        type: String,
-        required: false
-    },
-    prodImg5: {
-        type: String,
-        required: false
+    productImages: {
+        type: Array,
+        default: []
     },
     date: {
         type: Date,

@@ -17,19 +17,11 @@ router.post('/add', async (req, res) => {
         specifications: req.body.specification,
         washandcare: req.body.washandcare,
         shipping: req.body.shipping,
-        prodImg1: req.body.prodImage1,
-        prodImg2: req.body.prodImage2,
-        prodImg3: req.body.prodImage3,
-        prodImg4: req.body.prodImage4,
-        prodImg5: req.body.prodImage5,
+        productImages: req.body.productImages
     });
     try {
         const savedProduct = await addprod.save();
-        // res.json({
-        //     statuscode: 200,
-        //     bodymsg: savedProduct
-        // });
-        res.status(200).send({ msg: "New product added successfully" })
+        res.status(200).send({ msg: "New product added successfully", result: savedProduct })
 
     } catch (err) {
         res.status(400).send({ message: err });
