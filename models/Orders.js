@@ -20,38 +20,41 @@ const OrderSchema = mongoose.Schema({
             type: String,
             required: true
         },
-        Size: {
+        size: {
             type: String,
             required: true
         },
-        OrderQty: {
+        orderQty: {
             type: String,
             required: true
         },
-
+        currency: {
+            type: String,
+        },
         shipping: {
             type: String,
             required: true
         },
-        prodImg1: {
+        productImages: [{
             type: String,
             required: true
-        },
+        }],
     }],
-    shippingDetails: [{
+    shippingDetails: {
         contactNumber: {
             type: String,
             required: true
         },
-        firstName: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
-        lastName: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
+        firstName: { type: String },
+        lastName: { type: String },
         company: { type: String },
         address: { type: String, required: true },
         appartment: { type: String, required: true },
         city: { type: String, required: true },
         state: { type: String, required: true },
+        country: { type: String, required: true },
         pinCode: { type: String, required: true }
-    }],
+    },
 
     date: {
         type: Date,
@@ -59,4 +62,4 @@ const OrderSchema = mongoose.Schema({
     }
 })
 
-module.exports = mongoose.model('OrderSchema', OrderSchema);
+module.exports = mongoose.model('orders', OrderSchema);

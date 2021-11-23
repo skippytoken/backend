@@ -17,7 +17,9 @@ const ProductSchema = mongoose.Schema({
         type: String,
         required: true
     },
-
+    currency: {
+        type: String
+    },
     smallsizeavailqty: {
         type: String,
         required: true
