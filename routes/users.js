@@ -9,9 +9,21 @@ const normalize = require('normalize-url');
 const email = require("emailjs")
 const User = require('../models/User');
 const Mailgun = require('mailgun-js');
+const nodemailer = require('nodemailer');
+const smtpTransport = require('nodemailer-smtp-transport');
 
 const SMTPClient = email.SMTPClient;
 
+const transporter = nodemailer.createTransport(smtpTransport({
+    service: process.env.EMAIL_SERVICE,
+    host: process.env.EMAIL_HOST,
+    port: process.env.EMAIL_PORT,
+    secure: process.env.EMAIL_SECURE,
+    auth: {
+        user: process.env.EMAIL_AUTH_USER,
+        pass: process.env.EMAIL_PASSWORD
+    }
+}));
 
 
 // For getting all records from Collection
@@ -111,24 +123,22 @@ router.post(
 // @access   Public
 router.get('/auth/email', async (req, res) => {
 
-    const client = new SMTPClient({
-        user: 'postmaster@sunrisetechs.com',
-        password: '3kh9umujora5',
-        host: 'smtp.mailgun.org',
-        ssl: true,
-    });
+    if (!req.query.email) {
+        res.status(400).send({err: 'Please provide email ID'});
+    }
 
 
     try {
-
-        const message = await client.sendAsync({
-            text: 'i hope this works',
-            from: '<kamaleshsaravanan99@gmail.com>',
-            to: '<joieeemithun98@gmail.com>',
-            // cc: 'else <else@your-email.com>',
+        const mailOptions = {
+            from: process.env.EMAIL_AUTH_USER,
+            to: req.query.email,
             subject: 'testing emailjs',
+            html: 'i hope this works',
+        };
+
+        transporter.sendMail(mailOptions, err => {
+            console.log(err)
         });
-        console.log(message);
 
         res.status(200).send("mail sent successfully")
 
@@ -305,7 +315,7 @@ router.post(
                 { expiresIn: '5 days' },
                 (err, token) => {
                     if (err) throw err;
-                    res.json({ token });
+                    res.json({ token, ...user._doc  });
                 }
             );
         } catch (err) {
