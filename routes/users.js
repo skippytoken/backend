@@ -10,7 +10,7 @@ const email = require("emailjs")
 const User = require('../models/User');
 const Mailgun = require('mailgun-js');
 
-const SMTPClient = email.SMTPClient
+const SMTPClient = email.SMTPClient;
 
 
 
@@ -47,7 +47,7 @@ router.post(
             return res.status(400).send({ errors: errors.array() });
         }
 
-        const { firstName, lastName, email, password } = req.body;
+        const { firstName, lastName, email, password, role } = req.body;
 
         try {
             let user = await User.findOne({ email });
@@ -222,12 +222,12 @@ router.post(
         const { username, password } = req.body;
 
         try {
-            let user = await User.findOne({ firstName: username });
+            let user = await User.findOne({ firstName: username, role: 'admin' });
 
             if (!user) {
                 return res
                     .status(400)
-                    .json({ errors: [{ msg: 'Invalid Credentials' }] });
+                    .json({ errors: [{ msg: 'You might not have permission for admin!' }] });
             }
 
             const isMatch = await bcrypt.compare(password, user.password);
@@ -250,7 +250,7 @@ router.post(
                 { expiresIn: '5 days' },
                 (err, token) => {
                     if (err) throw err;
-                    res.json({ token });
+                    res.json({ token, ...user._doc });
                 }
             );
         } catch (err) {
