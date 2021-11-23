@@ -132,8 +132,8 @@ router.get('/auth/email', async (req, res) => {
         const mailOptions = {
             from: process.env.EMAIL_AUTH_USER,
             to: req.query.email,
-            subject: 'testing emailjs',
-            html: 'i hope this works',
+            subject: 'Password Reset',
+            html: 'Your new password is: abce123',
         };
 
         transporter.sendMail(mailOptions, err => {
