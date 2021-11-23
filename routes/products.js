@@ -41,5 +41,16 @@ router.get('/getall', async (req, res) => {
     }
 })
 
+router.put('/:id', async (req, res) => {
+    try {
+        const payload = req.body;
+        const producId = req.params.id || null;
+        const result = await Product.updateOne({_id: producId}, {$set: {...payload}});
+        res.status(200).send({success: true});
+    } catch (err) {
+        res.status(400).send({err});
+    }
+})
+
 
 module.exports = router;
