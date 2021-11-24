@@ -21,7 +21,7 @@ const OrderRoute = require('./routes/order')
 
 
 // Connect To DB
-mongoose.connect("mongodb+srv://skippyadmin:SkippyTOKEN2021mongo@cluster0.zcbuw.mongodb.net/skippytoken?retryWrites=true&w=majority"
+mongoose.connect(process.env.MONGO_URI
   , {
     useNewUrlParser: true,
     useUnifiedTopology: true,
