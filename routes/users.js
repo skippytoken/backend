@@ -127,6 +127,12 @@ router.get('/auth/email', async (req, res) => {
         res.status(400).send({err: 'Please provide email ID'});
     }
 
+    const user = await User.findOne({email: req.query.email});
+
+    if (!user) {
+        res.status(400).send({err: 'No account found with that email.'});
+        return;
+    }
 
     try {
         const mailOptions = {
