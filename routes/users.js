@@ -264,7 +264,7 @@ router.post(
             if (!user) {
                 return res
                     .status(400)
-                    .json({ errors: [{ msg: 'Invalid Credentials' }] });
+                    .json({ errors: { msg: 'User not found!' }, status: 'NOT_FOUND' });
             }
 
             const isMatch = await bcrypt.compare(password, user.password);
@@ -272,7 +272,13 @@ router.post(
             if (!isMatch) {
                 return res
                     .status(400)
-                    .json({ errors: [{ msg: 'Invalid Credentials' }] });
+                    .json({ errors: { msg: 'Password is wrong!' } });
+            }
+
+            if (!user.verified) {
+                return res
+                    .status(400)
+                    .json({ errors: { msg: 'User is not verified!' }, status: 'NOT_VERIFIED' });
             }
 
             const payload = {
