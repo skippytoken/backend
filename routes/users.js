@@ -11,6 +11,7 @@ const User = require('../models/User');
 const Mailgun = require('mailgun-js');
 const nodemailer = require('nodemailer');
 const smtpTransport = require('nodemailer-smtp-transport');
+const { authenticate } = require('../middleware/authenticate');
 
 const SMTPClient = email.SMTPClient;
 
@@ -106,6 +107,29 @@ router.post(
                 { expiresIn: '5 days' },
                 (err, token) => {
                     if (err) throw err;
+
+                    const mailOptions = {
+                        from: process.env.EMAIL_AUTH_USER,
+                        // to: user.email,
+                        to: "hemal.hansda25@gmail.com",
+                        subject: 'Skippy email verification',
+                        html: `
+                            <html>
+                                <body>
+                                    <p>You are receiving this because you have registered in Skippy.
+                                    Please click on the following link, or paste this into your browser to complete the process.</p>
+                                    <br/>
+                                    <a href="${process.env.SKIPPY_API_URL}/user/verify/${user._id}">
+                                        ${process.env.SKIPPY_API_URL}/user/verify/${user._id}
+                                    </a>
+                                </body>
+                            </html>
+                        `,
+                    };
+            
+                    transporter.sendMail(mailOptions, err => {
+                        console.log(err)
+                    });
                     res.json({ token });
                 }
             );
@@ -154,62 +178,6 @@ router.get('/auth/email', async (req, res) => {
         res.status(400).send(e)
     }
 })
-
-
-
-
-// router.get('/auth/email', async (req, res) => {
-
-//     try {
-
-//         var api_key = 'e36e683fd083a4dee95e7192b16f6516-dbdfb8ff-75e69bd3';
-
-//         var domain = 'dev@skippytoken.io';
-
-
-//         var mailgun = new Mailgun({ apiKey: api_key, domain: domain, host: "api.eu.mailgun.net", });
-
-//         var from_who = 'kamaleshsaravanan99@gmail.com';
-
-
-
-//         //We pass the api_key and domain to the wrapper, or it won't be able to identify + send emails
-//         var data = {
-//             //Specify email data
-//             from: from_who,
-//             //The email to contact
-//             to: 'joieeemithun98@gmail.com',
-//             //Subject and text data  
-//             subject: 'Hello from Mailgun',
-//             html: '<h1>Hello</h1>'
-//         }
-//         //Invokes the method to send emails given the above data with the helper library
-//         mailgun.messages().send(data, function (err, body) {
-//             //If there is an error, render the error pages
-//             if (err) {
-//                 res.status(400).send({ error: err });
-//                 console.log("got an error: ", err);
-//             }
-//             //Else we can greet    and leave
-//             else {
-//                 //Here "submitted.jade" is the view file for this landing page 
-//                 //We pass the variable "email" from the url parameter in an object rendered by Jade
-//                 res.status(200).send('Mail sent to the respective person');
-//                 console.log(body);
-//             }
-//         });
-//     } catch (e) {
-
-//         console.log(e)
-//         res.status(500).send("Internal Server errors")
-
-
-//     }
-
-
-// })
-
-
 
 // @route    GET api/auth
 // @desc     Get user by token
@@ -260,15 +228,13 @@ router.post(
                 }
             };
 
-            jwt.sign(
-                payload,
-                config.get('jwtSecret'),
-                { expiresIn: '5 days' },
-                (err, token) => {
-                    if (err) throw err;
-                    res.json({ token, ...user._doc });
-                }
-            );
+            const token = await user.generateAuthToken();
+            const result = {
+                userData: user,
+                token,
+            };
+            
+            res.json(result).status(200);
         } catch (err) {
             console.error(err.message);
             res.status(500).send('Server error');
@@ -315,15 +281,13 @@ router.post(
                 }
             };
 
-            jwt.sign(
-                payload,
-                config.get('jwtSecret'),
-                { expiresIn: '5 days' },
-                (err, token) => {
-                    if (err) throw err;
-                    res.json({ token, ...user._doc  });
-                }
-            );
+            const token = await user.generateAuthToken();
+            const result = {
+                userData: user,
+                token,
+            };
+            
+            res.json(result).status(200);
         } catch (err) {
             console.error(err.message);
             res.status(500).send('Server error');
@@ -331,7 +295,14 @@ router.post(
     }
 );
 
-
+router.post('/logout', authenticate, async (req, res) => {
+    try {
+        await req.user.removeToken(req.token);
+        return res.json({success: true}).status(200);
+    } catch (err) {
+        return res.json(err).status(401);
+    }
+})
 
 router.post('/search', async (req, res) => {
     try {
@@ -343,6 +314,66 @@ router.post('/search', async (req, res) => {
     } catch (e) {
         console.log(e)
         res.status(500).send("internal server error")
+    }
+})
+
+router.get('/verify/:id', async (req, res) => {
+    try {
+        const userId = req.params.id || '';
+
+        const user = await User.findOne({_id: userId});
+
+        if (!user) {
+            res.set('Content-Type', 'text/html');
+            res.status(200).send(Buffer.from(`
+                <html>
+                    <body>
+                    </body>
+                    <script type="text/javascript">
+                        (
+                            function () {
+                                alert('Invalid ID!');
+                                window.location.href = '${process.env.SKIPPY_URL}';
+                            }
+                        )()
+                    </script>
+                </html>
+            `));
+            return;
+        }
+
+        await User.updateOne({_id: userId}, { $set: { verified: true } });
+
+        res.set('Content-Type', 'text/html');
+        res.status(200).send(Buffer.from(`
+            <html>
+                <body>
+                </body>
+                <script type="text/javascript">
+                    (
+                        function () {
+                            window.location.href = '${process.env.SKIPPY_URL}/login';
+                        }
+                    )()
+                </script>
+            </html>
+        `));
+    } catch (err) {
+        res.set('Content-Type', 'text/html');
+        res.status(200).send(Buffer.from(`
+            <html>
+                <body>
+                </body>
+                <script type="text/javascript">
+                    (
+                        function () {
+                            alert('Page not exist!');
+                            window.location.href = '${process.env.SKIPPY_URL}';
+                        }
+                    )()
+                </script>
+            </html>
+        `));
     }
 })
 
