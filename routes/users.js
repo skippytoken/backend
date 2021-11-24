@@ -110,8 +110,7 @@ router.post(
 
                     const mailOptions = {
                         from: process.env.EMAIL_AUTH_USER,
-                        // to: user.email,
-                        to: "hemal.hansda25@gmail.com",
+                        to: user.email,
                         subject: 'Skippy email verification',
                         html: `
                             <html>
