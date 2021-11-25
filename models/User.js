@@ -34,6 +34,11 @@ const UserSchema = new mongoose.Schema({
         required: true,
         default: false
     },
+    isReset: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
     tokens: {
         type: Array,
         default: []

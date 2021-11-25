@@ -382,6 +382,125 @@ router.get('/verify/:id', async (req, res) => {
     }
 })
 
+router.get('/auth/reset', async (req, res) => {
 
+    if (!req.query.email) {
+        res.status(400).send({err: 'Please provide email ID'});
+    }
+
+    const user = await User.findOne({email: req.query.email});
+
+    if (!user) {
+        res.status(400).send({err: 'No account found with that email.'});
+        return;
+    }
+
+    try {
+        const mailOptions = {
+            from: process.env.EMAIL_AUTH_USER,
+            to: req.query.email,
+            subject: 'Password Reset',
+            html: `<html>
+                <body>
+                    <p>Please click on the following link, or paste this into your browser to reset your password.</p>
+                    <br/>
+                    <a href="${process.env.SKIPPY_API_URL}/user/reset_password/${user._id}">
+                        ${process.env.SKIPPY_API_URL}/user/reset_password/${user._id}
+                    </a>
+                </body>
+            </html>`,
+        };
+
+        transporter.sendMail(mailOptions, err => {
+            console.log(err)
+        });
+
+        res.status(200).send("Email sent successfully");
+    } catch (e) {
+
+        console.error(e);
+        res.status(400).send(e)
+    }
+})
+
+router.put('/reset_password/:id', async (req, res) => {
+    try {
+        const { password } = req.body;
+        const { id } = req.params;
+        if (!password || !id) {
+            res.send({err: 'Please provide the required params!'}).status(400);
+            return;
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const encryptedPassword = await bcrypt.hash(password, salt);
+
+        await User.updateOne({_id: id}, { $set: {password: encryptedPassword} });
+
+        res.send({success: true}).status(200);
+    } catch (err) {
+        res.send({err: 'Something went wrong!'}).status(400);
+    }
+})
+
+router.get('/reset_password/:id', async (req, res) => {
+    try {
+        const userId = req.params.id || '';
+
+        const user = await User.findOne({_id: userId});
+
+        if (!user) {
+            res.set('Content-Type', 'text/html');
+            res.status(200).send(Buffer.from(`
+                <html>
+                    <body>
+                    </body>
+                    <script type="text/javascript">
+                        (
+                            function () {
+                                alert('Invalid ID!');
+                                window.location.href = '${process.env.SKIPPY_URL}';
+                            }
+                        )()
+                    </script>
+                </html>
+            `));
+            return;
+        }
+
+        await User.updateOne({_id: user._id}, { $set: { isReset: true } });
+
+        res.set('Content-Type', 'text/html');
+        res.status(200).send(Buffer.from(`
+            <html>
+                <body>
+                </body>
+                <script type="text/javascript">
+                    (
+                        function () {
+                            window.location.href = '${process.env.SKIPPY_URL}/reset_password?uid=${userId}';
+                        }
+                    )()
+                </script>
+            </html>
+        `));
+    } catch (err) {
+        res.set('Content-Type', 'text/html');
+        res.status(200).send(Buffer.from(`
+            <html>
+                <body>
+                </body>
+                <script type="text/javascript">
+                    (
+                        function () {
+                            alert('Page not exist!');
+                            window.location.href = '${process.env.SKIPPY_URL}';
+                        }
+                    )()
+                </script>
+            </html>
+        `));
+    }
+})
 
 module.exports = router;
