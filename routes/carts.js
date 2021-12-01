@@ -19,11 +19,12 @@ router.post('/checkout/:userId', authenticate, async (req, res) => {
     try {
         const payload = req.body;
         payload.user = req.params.userId;
-        console.log('payload: ', payload);
-        const result = await Cart.updateOne({user: userId}, { $set: payload }, { upsert: true });
+
+        const result = await Cart.updateOne({user: req.params.userId}, { $set: {...payload} }, { upsert: true });
+
         res.status(200).send({success: true});
-    } catch (e) {
-        res.status(500).send({err: e})
+    } catch (err) {
+        res.status(500).send({err: err})
     }
 });
 
