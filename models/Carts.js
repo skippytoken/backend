@@ -38,7 +38,8 @@ const CartSchema = mongoose.Schema({
         state: { type: String, required: true },
         country: { type: String, required: true },
         pinCode: { type: String, required: true },
-        newsletter: { type: Boolean, default: false }
+        newsletter: { type: Boolean, default: false },
+        saveinfo: { type: Boolean, default: false }
     },
     date: {
         type: Date,
