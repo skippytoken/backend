@@ -6,7 +6,7 @@
   "scripts": {
     "start": "nodemon app.js"
   },
-  "author": "purusothaman@sunrisetechs.com",
+  "author": "sunrisetechs.com",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
