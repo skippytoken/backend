@@ -16,7 +16,8 @@ const subcatRoute = require('./routes/subcategories');
 const productRoute = require('./routes/products');
 const connectToDB = require('./config/dbConfig');
 const OrderRoute = require('./routes/order');
-const CartRoute = require('./routes/carts')
+const CartRoute = require('./routes/carts');
+const TransactionRoute = require('./routes/transactions');
 
 
 
@@ -53,6 +54,7 @@ app.use('/subcategory', subcategoryRoute)
 app.use('/product', productRoute)
 app.use('/order', OrderRoute)
 app.use('/cart', CartRoute)
+app.use('/transaction', TransactionRoute)
 //Routes
 app.get('/', (req, res) => {
   res.send('Backend for Ecommerce')
