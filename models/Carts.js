@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const autoPopulate = require("mongoose-autopopulate");
 
 const CartSchema = mongoose.Schema({
-    user: { type: mongoose.SchemaTypes.ObjectId, ref: 'users' },
+    user: { type: mongoose.SchemaTypes.ObjectId, ref: 'user' },
     products: [
         {
             product: {
