@@ -14,7 +14,7 @@ router.get('/getAlltheOrders', async (req, res) => {
     }
 });
 
-router.get('/:userId', async (req, res) => {
+router.get('/:userId', authenticate, async (req, res) => {
     try {
         const { userId } = req.params;
         const result = await Order.find({user: userId})

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const autoPopulate = require("mongoose-autopopulate");
 
 const OrderSchema = mongoose.Schema({
     user: {
@@ -16,7 +17,7 @@ const OrderSchema = mongoose.Schema({
         _id: false,
         default: null,
         autopopulate: {
-            maxDepth: 1
+            maxDepth: 3
         }
     },
     products: [
@@ -58,5 +59,7 @@ const OrderSchema = mongoose.Schema({
         default: Date.now
     }
 })
+
+OrderSchema.plugin(autoPopulate);
 
 module.exports = mongoose.model('orders', OrderSchema);
