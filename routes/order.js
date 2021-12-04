@@ -1,4 +1,5 @@
 const express = require('express');
+const { authenticate } = require('../middleware/authenticate');
 const router = express.Router();
 const Order = require('../models/Orders');
 
@@ -23,7 +24,7 @@ router.get('/:userId', async (req, res) => {
     }
 });
 
-router.post('/placeOrder', async (req, res) => {
+router.post('/placeOrder', authenticate, async (req, res) => {
     try {
         const payload = req.body;
         const order = new Order(payload);

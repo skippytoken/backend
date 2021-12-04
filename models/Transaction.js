@@ -19,10 +19,24 @@ const TransactionSchema = mongoose.Schema({
         type: String,
         default: ''
     },
+    coin: {
+        type: String,
+        enum: ['BNB', 'SKIPPY'],
+        default: ['SKIPPY']
+    },
     transactionHash: {
         type: String,
         default: ''
-    }
+    },
+    type: {
+        type: String,
+        enum: ['DEBIT', 'CREDIT'],
+        required: true
+    },
+    status: {
+        type: String,
+        default: ''
+    },
 }, {
     timestamps: {
       createdAt: "created_at",

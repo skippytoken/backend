@@ -10,6 +10,15 @@ const OrderSchema = mongoose.Schema({
             maxDepth: 1
         }
     },
+    transaction: {
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: 'transactions',
+        _id: false,
+        default: null,
+        autopopulate: {
+            maxDepth: 1
+        }
+    },
     products: [
         {
             product: {
