@@ -13,6 +13,16 @@ router.get('/getAlltheOrders', async (req, res) => {
     }
 });
 
+router.get('/:userId', async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const result = await Order.find({user: userId})
+        res.status(200).send(result);
+    } catch (e) {
+        res.status(500).send(err);
+    }
+});
+
 router.post('/placeOrder', async (req, res) => {
     try {
         const payload = req.body;
