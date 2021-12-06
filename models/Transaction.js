@@ -21,7 +21,7 @@ const TransactionSchema = mongoose.Schema({
     },
     coin: {
         type: String,
-        enum: ['BNB', 'SKIPPY'],
+        enum: ['BNB', 'SKIPPY', 'WALLET'],
         default: ['SKIPPY']
     },
     transactionHash: {
