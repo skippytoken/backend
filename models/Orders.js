@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
 const autoPopulate = require("mongoose-autopopulate");
 
+const buildOrderId = (orderId) => {
+    orderId = 'SK' + orderId;
+    return orderId;
+}
+
 const OrderSchema = mongoose.Schema({
     user: {
         type: mongoose.SchemaTypes.ObjectId,
@@ -10,6 +15,12 @@ const OrderSchema = mongoose.Schema({
         autopopulate: {
             maxDepth: 1
         }
+    },
+    orderId: {
+        type: Number,
+        require: true,
+        unique: true,
+        get: buildOrderId
     },
     transaction: {
         type: mongoose.SchemaTypes.ObjectId,
@@ -58,7 +69,10 @@ const OrderSchema = mongoose.Schema({
         type: Date,
         default: Date.now
     }
-})
+});
+
+OrderSchema.set('toObject', { getters: true });
+OrderSchema.set('toJSON', { getters: true });
 
 OrderSchema.plugin(autoPopulate);
 

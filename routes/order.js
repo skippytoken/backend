@@ -17,7 +17,7 @@ router.get('/getAlltheOrders', async (req, res) => {
 router.get('/:userId', authenticate, async (req, res) => {
     try {
         const { userId } = req.params;
-        const result = await Order.find({user: userId})
+        const result = await Order.find({user: userId}).sort({date: -1});
         res.status(200).send(result);
     } catch (e) {
         res.status(500).send(err);
@@ -27,6 +27,12 @@ router.get('/:userId', authenticate, async (req, res) => {
 router.post('/placeOrder', authenticate, async (req, res) => {
     try {
         const payload = req.body;
+        const lastOrderId = await Order.aggregate([{ $group : { _id: null, max: { $max : "$orderId" }}}]);
+        if (lastOrderId[0] && !lastOrderId[0].max) {
+            payload.orderId = 100001;
+        } else {
+            payload.orderId = parseInt(lastOrderId[0].max) + 1;
+        }
         const order = new Order(payload);
         await order.save();
         res.status(200).send({success: true});
