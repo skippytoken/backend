@@ -7,7 +7,10 @@ const Transaction = require('../models/Transaction');
 router.get('/:userId', authenticate, async (req, res) => {
     try {
         const { userId } = req.params;
-        const result = await Transaction.find({user: userId}).sort({created_at: -1});
+        const { coin } = req.query;
+        const result = coin && coin.length
+            ? await Transaction.find({user: userId, coin: coin}).sort({created_at: -1})
+            : await Transaction.find({user: userId}).sort({created_at: -1});
         res.status(200).send({result});
     } catch (e) {
         res.status(500).send({err: e});
