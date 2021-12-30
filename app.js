@@ -8,6 +8,7 @@ const cors = require('cors');
 require('dotenv').config();
 app.use(cors());
 app.use(bodyParser.json({ limit: '15mb' }));
+app.use(bodyParser.json());
 //Import Routes
 const userRoute = require('./routes/users');
 const categoryRoute = require('./routes/categories');

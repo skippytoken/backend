@@ -12,7 +12,7 @@ router.post('/add', async (req, res) => {
         smallsizeavailqty: req.body.smallSizeAvailability,
         mediumsizeavailqty: req.body.mediumSizeAvailability,
         largesizeavailqty: req.body.largeSizeAvailability,
-        xlargesizeavailqty: req.body.xlargeSizeAvailability,
+        // xlargesizeavailqty: req.body.xlargeSizeAvailability,
         description: req.body.description,
         specifications: req.body.specification,
         washandcare: req.body.washandcare,
@@ -21,6 +21,7 @@ router.post('/add', async (req, res) => {
     });
     try {
         const savedProduct = await addprod.save();
+        console.log("savedProductsavedProductsavedProduct",savedProduct);
         res.status(200).send({ msg: "New product added successfully", result: savedProduct })
 
     } catch (err) {

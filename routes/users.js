@@ -8,6 +8,7 @@ const { check, validationResult } = require('express-validator');
 const normalize = require('normalize-url');
 const email = require("emailjs")
 const User = require('../models/User');
+const Order = require('../models/Orders');
 const Mailgun = require('mailgun-js');
 const nodemailer = require('nodemailer');
 const smtpTransport = require('nodemailer-smtp-transport');
@@ -30,8 +31,86 @@ const transporter = nodemailer.createTransport(smtpTransport({
 // For getting all records from Collection
 router.get('/getallusers', async (req, res) => {
     try {
+
+        // const test =  User.aggregate([
+        //     // { "$match": { "status": { $eq: "0" },"depositdate": { "$gte": new Date(`${year}-01-01T00:00:00.000Z`), "$lt": new Date(`${year}-12-31T00:00:00.000Z`) } } },
+        //     // {
+        //     //   $project: {
+        //     //     // depositdate: 1,
+        //     //     // amount: 1,
+        //     //     // deposittype: 1
+        //     //   }
+        //     // },
+        //     {
+        //       "$group": {
+        //         "_id": "$orders.user",
+        //         // "count": { "$sum": 1 },
+        //         // "totalamount": { "$sum": "$amount" }
+        //       }
+        //     },
+        //     { "$sort": { "_id": 1 } }
+        //   ])
+        // var test= await User.aggregate([
+        //     {$lookup: {from: "orders", localField: "user", foreignField: "_id", as: "Orderdetails"}},
+        //     // {$group : {_id : {email: "$Orderdetails.user"}}},
+        //     // {$match: {details: {$ne: []}}}
+        // ]);
+        let resultData =  await User.aggregate([
+            {
+                $lookup:
+                {
+                  from: "orders",
+                  let: { user: "$user" },
+                  pipeline: [
+                    {
+                      $match: {
+                        active: '1',
+                        $expr: {
+                          $and:
+                            [
+                              { $eq: ["$$user", "$_id"] },
+                            ]
+                        }
+                      }
+                    },
+                  ],
+                  as: "ordersInfo"
+                }
+              },
+              {
+                $unwind: {
+                  path: "$ordersInfo",
+                  preserveNullAndEmptyArrays: true
+                }
+              },
+          ])
+
+
+
+var test = await User.aggregate([
+    // stage 1: join subcategories
+    {
+        $lookup: {
+            from: 'orders',      // collection to join
+            localField: '_id',          // field from categories collection
+            foreignField: 'user', // field from subcategories collection
+            as: 'orders_details'           
+        }
+    },
+    // {
+    //     $project: {
+    //       "events": 1
+    //     }
+    //   },
+    // { "$addFields": {
+    //     "orders_details": { "$slice": ["$post", -1] }
+    //   }}
+]).exec();
+console.log("testtesttesttesttest",test)
+//   return res.json(resultData).status(200);
+        //   console.log("resultDataresultData",resultData);
         const profiles = await User.find()
-        res.json(profiles);
+        res.json(test);
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');

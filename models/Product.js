@@ -32,10 +32,10 @@ const ProductSchema = mongoose.Schema({
         type: String,
         required: true
     },
-    xlargesizeavailqty: {
-        type: String,
-        required: true
-    },
+    // xlargesizeavailqty: {
+    //     type: String,
+    //     required: true
+    // },
     description: {
         type: String,
         required: true
